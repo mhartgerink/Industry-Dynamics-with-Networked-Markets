@@ -4,24 +4,14 @@ Random.seed!(123)
 n_m, maxω = 3,10
 α, β, c = rand(Uniform(0.3,1.5), n_m), rand(Uniform(8,10), n_m), rand(Uniform(0.2,0.5))
 
+
 function importmatrix(n_m, maxω)
     LC = load("LC_matrix_[$n_m, $maxω].jld", "Individual")
     RSS = load("RSS_matrix_[$n_m, $maxω].jld", "States")
-    GE = load("Graph_Equiv_[$n_m, $maxω].jld", "Equiv")
-    CE = load("Capacity_Equiv_[$n_m, $maxω].jld", "Equiv")
-    CD = load("Capgraph_difference_[$n_m, $maxω].jld", "Diff")
-    MI = load("Max_investment_[$maxω].jld", "i_level")
-    II = load("II_matrix_[$maxω].jld", "Initial")
-    CS = load("capacity_states_[$n_m, $maxω].jld", "capacity")
-    IL = load("Link_strategy_[$n_m].jld", "pr")
-    IGS = load("I_Graph_state_[$n_m, $maxω].jld", "graph")
-    OGS = load("O_Graph_state_[$n_m, $maxω].jld", "graph")
-    return LC, RSS, GE, CE, CD, MI, II, CS, IL, IGS, OGS
+    return LC, RSS
 end
 
-LC, RSS, GE, CE, CD, MI, II, CS, IL, IGS, OGS = importmatrix(n_m,maxω)[[1,2,3,4,5,6,7,8,9, 10, 11]]
-
-
+LC, RSS= importmatrix(n_m,maxω)[[1,2]]
 
 function U_Profit(RSS::Matrix{Int}, LC::Matrix{Int}, α::Vector{Float64}, β::Vector{Float64}, c::Float64, error, n_m, maxω)
     Profit_vector = zeros(Float64, size(RSS, 2))
@@ -214,7 +204,7 @@ function U_Profit(RSS::Matrix{Int}, LC::Matrix{Int}, α::Vector{Float64}, β::Ve
 
     return nothing
 end
-
+#The function below calculates the equilibrium for different constraints.
 function profit_constraint(A, b_1, b_2, β, cap_1, cap_2, error)
     
     e_1 = copy(b_1)
@@ -358,8 +348,6 @@ end
 U_Profit(RSS, LC, α, β, c, 0.005, n_m, maxω)
 end
 
-
-#error = load("Error_[3,2]_se.jld", "err")
 
 
 
