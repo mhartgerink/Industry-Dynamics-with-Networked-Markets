@@ -62,7 +62,7 @@ function LC_choices(n_m::Int, maxω::Int)
     return LC_matrix
 end
 
-
+LC = LC_choices(n_m, maxω)
 
 #= Reduced state space for 2 firms
     ***
@@ -85,12 +85,14 @@ function Reduced_State_Space(LC, n_m::Int, maxω::Int)
     return RSS_matrix
 end
 
+RSS = Reduced_State_Space(LC, n_m, maxω)
+
 #= GRAPH EQUIVALENT STATES
 ***
 This matrix contains all graph equivalent states.
 =#
 
-function Graph_Equivalent_States(RSS, n_m::Int, maxω::Int, AG)
+function Graph_Equivalent_States(RSS, n_m::Int, maxω::Int)
     
     #All possible unique graphs#
     graphs = [0 0]
@@ -131,6 +133,10 @@ function Graph_Equivalent_States(RSS, n_m::Int, maxω::Int, AG)
     return graph_equivalents
 end
 
+GE = Graph_Equivalent_States(RSS, n_m, maxω)
+
+#CAPACITY EQUIVALENTS
+
 function ω_equivalents(n_m::Int, maxω::Int)
     #Import RSS_matrix
     RSS = load("RSS_matrix_[$n_m, $maxω].jld", "States")
@@ -169,6 +175,7 @@ function ω_equivalents(n_m::Int, maxω::Int)
     return ω_equivalents
 end
 
+CE = ω_equivalents(n_m, maxω)
 #STATE SPACE READER 
 
 function Space_Reader(LC, RSS::Matrix{Int}, index::Int)
@@ -191,6 +198,8 @@ function max_investment(RSS::Matrix{Int}, LC::Matrix{Int}, maxω)
     return max_investment
 end
 
+MI = max_investment(RSS, LC, maxω)
+
 function ω_difference(LC::Matrix{Int}, RSS::Matrix{Int}, GE::Matrix{Int})
     ω_difference = zeros(Int, size(RSS,2)*2, size(GE,2))::Matrix
 
@@ -208,6 +217,8 @@ function ω_difference(LC::Matrix{Int}, RSS::Matrix{Int}, GE::Matrix{Int})
     return ω_difference
 end
 
+CD = ω_difference(LC, RSS, GE)
+
 function ω_states(LC::Matrix{Int}, RSS::Matrix{Int})
 
     ω = []
@@ -218,6 +229,7 @@ function ω_states(LC::Matrix{Int}, RSS::Matrix{Int})
     return ω
 end
 
+CS = ω_states(LC, RSS)
 
 function II_matrix(RSS::Matrix{Int}, MI::Vector, maxω)
     II_matrix = zeros(Float64, size(RSS,2), 1+maxω)
@@ -228,7 +240,7 @@ function II_matrix(RSS::Matrix{Int}, MI::Vector, maxω)
     return II_matrix
 end
 
-
+II = II_matrix(RSS, MI, maxω)
 
 #ENTRY/EXIT STAGE
 
@@ -240,6 +252,8 @@ function IL_matrix(RSS::Matrix{Int}, n_m)
     save("Link_strategy_[$n_m]_last.jld", "pr", IL_matrix)
     return IL_matrix
 end
+
+IL = IL_matrix(RSS, n_m)
 
 function merger(LC, RSS, maxω)
     merger_states = zeros(Int, size(RSS, 2))
@@ -285,7 +299,7 @@ function merger(LC, RSS, maxω)
     return merger_states
 
 end
-
+MS = merger(LC, n_m, maxω)
 
 function RSS_graph(RSS::Matrix{Int}, n_m, maxω, LC::Matrix{Int})
     graphs = [0 0]
@@ -313,7 +327,7 @@ function RSS_graph(RSS::Matrix{Int}, n_m, maxω, LC::Matrix{Int})
     save("Link_label_[$n_m]_last.jld", "link", graph_label)
     return graph_label
 end
-
+Graph = RSS_graph(RSS, n_m, maxω, LC)
 function EE_matrix(n_m)
     #consider all possible links
     e = [1, 0]::Vector{Int}
@@ -332,7 +346,7 @@ function EE_matrix(n_m)
     save("Exit_Diff_[$n_m]_last.jld", "diff", exit_difference)
     return entry_difference
 end
-
+EE = EE_matrix(n_m)
 function equiv_check(CE, LC, RSS, i)
     b = zeros(size(CE[i,:], 1))
     for a in axes(CE[i, :], 1)
@@ -341,21 +355,6 @@ function equiv_check(CE, LC, RSS, i)
     return b
 end
 
-LC = LC_choices(n_m, maxω)
-
-#RSS = Reduced_State_Space(LC, n_m, maxω)
-
-#Graph_Equivalent_States(RSS, n_m, maxω, AG)
-RSS = Reduced_State_Space(LC, n_m, maxω)
-#ω_equivalents(n_m, maxω)
-#MI = max_investment(RSS, LC,  maxω)
-#ω_difference(LC, RSS, GE)
-#ω_states(LC, RSS)
-#II_matrix(RSS, MI, maxω)
-#IL_matrix(RSS, n_m)
-#RSS_graph(RSS, n_m, maxω, LC)
-#EE_matrix(n_m)
-A = merger(LC, RSS, maxω)
 
 
 
