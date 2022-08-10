@@ -1,27 +1,27 @@
 using JLD, Random, ProgressMeter, Distributions, SIMD, SparseArrays, QuadGK
 
 Random.seed!(123)
-# State Space
-
+#set the parameters
 n_m = 3
 maxω = 10
 
+#Import the necessary matrices
 function importmatrix(n_m, maxω)
     LC = load("LC_matrix_[$n_m, $maxω].jld", "Individual")
     RSS = load("RSS_matrix_[$n_m, $maxω].jld", "States")
     GE = load("Graph_Equiv_[$n_m, $maxω].jld", "Equiv")
     CE = load("Capacity_Equiv_[$n_m, $maxω].jld", "Equiv")
     CD = load("Capgraph_difference_[$n_m, $maxω].jld", "Diff")
-    #MI = load("Max_investment_[$maxω]_last.jld", "i_level")
-    #II = load("II_matrix_[$maxω]_last.jld", "Initial")
-    #CS = load("capacity_states_[$n_m, $maxω].jld", "capacity")
-    #IL = load("Link_strategy_[$n_m]_last.jld", "pr")
-    #IGS = load("I_Graph_state_[$n_m, $maxω].jld", "graph")
-    #OGS = load("O_Graph_state_[$n_m, $maxω].jld", "graph")
-    #MS = load("Merger_states_[$n_m, $maxω].jld", "states")
-    #GEn = load("Entry_Diff_[$n_m]_last.jld","diff")
-    #GEx = load("Exit_Diff_[$n_m]_last.jld", "diff")
-    #CCNCC = load("Profit_[$n_m,$maxω]_se.jld", "prof")
+    MI = load("Max_investment_[$maxω]_last.jld", "i_level")
+    II = load("II_matrix_[$maxω]_last.jld", "Initial")
+    CS = load("capacity_states_[$n_m, $maxω].jld", "capacity")
+    IL = load("Link_strategy_[$n_m]_last.jld", "pr")
+    IGS = load("I_Graph_state_[$n_m, $maxω].jld", "graph")
+    OGS = load("O_Graph_state_[$n_m, $maxω].jld", "graph")
+    MS = load("Merger_states_[$n_m, $maxω].jld", "states")
+    GEn = load("Entry_Diff_[$n_m]_last.jld","diff")
+    GEx = load("Exit_Diff_[$n_m]_last.jld", "diff")
+    CCNCC = load("Profit_[$n_m,$maxω]_se.jld", "prof")
     return LC, RSS, GE, CE, CD, MI, II, CS, IL, IGS, OGS, MS, GEn, GEx, CCNCC
 end
 
@@ -150,50 +150,6 @@ end
 
 #MERGER STAGE
 
-function merger(LC, RSS, maxω, n_m)
-    merger_states = zeros(Int, size(RSS, 2))
-    b = findall(x->x==size(LC,1), RSS[2,:])
-    for i in axes(RSS, 2)
-        
-        new_state = LC[RSS[1, i], :]+LC[RSS[2,i], :]
-        if new_state[1] > maxω
-            new_state[1] = maxω
-        else
-            nothing
-        end
-
-        for a in 2:size(new_state,1)::Int
-            if new_state[a] == 2
-                new_state[a] = 1
-            else
-                nothing
-            end
-        end
-        new_LC_index = 0
-        for a in axes(LC,1)
-            if LC[a,:] == new_state
-                new_LC_index = a
-            else
-                nothing
-            end
-        end
-
-        for a in b
-            if new_LC_index == RSS[1, a]
-                merger_states[i] = a
-                
-            else
-                nothing
-            end
-        end
-        
-    end
-    save("Merger_states_[$n_m, $maxω].jld", "states", merger_states)
-    return merger_states
-
-end
-
-
 function M_policy(RSS::Matrix{Int}, V::Vector{Float64}, MS::Vector{Int}, minsyn, maxsyn)
     EV = zeros(Float64, size(RSS, 2))
     Policy = zeros(Float64, size(RSS, 2))
@@ -226,7 +182,7 @@ end
 
 #ENTRY/EXIT STAGE
 
-#Irwin-Hall distributions
+#Cumulative distribution of the difference
 function CDF_convolution_IW(x::Float64)
     f(a) = pdf(Uniform(0,1), a)*(1-cdf(Uniform(0,1), a-x))
     b = quadgk(a->  f(a), 0, 1)[1]
@@ -309,7 +265,7 @@ function iterator(iterations, c::Float64, exponent::Float64, β::Float64, II::Ma
     a = 0
     M_P = zeros(Float64, size(RSS, 2))
     @showprogress for _=1:iterations
-        
+        #One can also keep the new policy instead of taking the average of past values.   
         a = a+1
         #MERGER STAGE
         pre_merger = II
@@ -343,21 +299,7 @@ function iterator(iterations, c::Float64, exponent::Float64, β::Float64, II::Ma
     save("Entry_Policy_conv_av_[$n_m, $maxω]_3_2.jld", "change", av_ee_change)
     save("Investment_Policy_conv_av_[$n_m, $maxω]_3_2.jld", "change", av_investment_change)
     save("Merger_Policy_conv_av_[$n_m, $maxω]_3_2.jld", "change", m_policy_change)
-    return diff[end-7:end,:]
+    return nothing
 end
 
-#function iterator(it, RSS, V, MS)
-#    for _=1:it
-#        A = M_policy(RSS, V, MS, -2, 2)
-#        V = A
-#    end
-#    return V
-#end
-
 #iterator(1000, cost_investment, exponent, β, II, CD, GE, RSS, V, CS, MI, CE, IL, n_m, OGS, IGS, GEn, GEx, 15,13, CCNCC, MS, -1, 1)
-
-
-#findall(x->x == 66, RSS[2,:])
-
-
-CCNCC[130]
