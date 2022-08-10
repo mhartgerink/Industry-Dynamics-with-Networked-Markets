@@ -22,7 +22,7 @@ function final_calculator(n_f, n_m, ω)
     return size
 end
 
-
+#This matrix is for the values listed in the thesis
 A = [[2 2 10]
 [2 3 10]
 [2 4 10]
@@ -54,7 +54,7 @@ A = [[2 2 10]
 [6 2 5]
 [6 3 4]
 ]
-
+#The function below constructs the table in the thesis
 function cardcalc(Matrix)
     Reduction = zeros(size(Matrix, 1))
     Reducedcard = zeros(size(Matrix, 1))
