@@ -1,20 +1,14 @@
 using Plots, JLD, Distributions, StatsPlots
-
+#Select the MPE
 n_m, maxω, iterations = 3,2, 1000
 
-V = load("Value_[$n_m, $maxω, $iterations]_3_2.jld", "Values")
-IP = load("Investment_policy_[$n_m, $maxω,$iterations]_3_2.jld", "Policies")
-EP = load("Entry_Policy_[$n_m, $maxω,$iterations]_3_2.jld", "Policies")
+#Import the matrices, computed in MPE_calculator for the correct name.
 diff = load("Progress_[$n_m, $maxω,$iterations]_3_2.jld", "Values")
-MP = load("Merger_Policy_[$n_m, $maxω, $iterations]_3_2.jld", "Policies")
 EP_conv = load("Entry_Policy_conv_av_[$n_m, $maxω]_3_2.jld", "change")
 IP_conv = load("Investment_Policy_conv_av_[$n_m, $maxω]_3_2.jld", "change")
 MP_conv = load("Merger_Policy_conv_av_[$n_m, $maxω]_3_2.jld", "change")
-RSS = load("RSS_matrix_[$n_m, $maxω].jld", "States")
-GE = load("Graph_Equiv_[$n_m, $maxω].jld", "Equiv")
-CE = load("Capacity_Equiv_[$n_m, $maxω].jld", "Equiv")
-LC = load("LC_matrix_[$n_m, $maxω].jld", "Individual")
 
+#The function below plots the convergence of the value functions
 function convergence_plotter(diff, iterations)
     minus = diff[1:end-1, :]
     difference = diff[2:end, :].-minus
@@ -71,6 +65,7 @@ function convergence_plotter(diff, iterations)
 end
 convergence_plotter(diff, iterations)
 
+#This function plots the convergence of the policy functions.
 function policy_convergence(vector, string, vector2, string2, vector3, string3)
     a = plot(vector;
     xlabel = "Iterations",
